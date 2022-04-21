@@ -31,6 +31,35 @@ app.get('/',(req,res) => {
    
 })
 
+app.get('/obtenerUsuario',(req,res) =>{
+
+    const _idUsuario = parseInt(req.query._idUsuario);
+
+    if(!_idUsuario){
+        return res.status(400).json({
+            ok:false,
+            msg: `No envio ningun datos de usuario id: ${_idUsuario}`
+        })
+    }else{
+        const encontrarUsuario = arrJsnUsuarios.find(usuario => usuario._id == _idUsuario);
+        if(encontrarUsuario){
+            return res.status(200).json({
+                ok:true,
+                msg: "Se encontro el usuario",
+                cont:{
+                    encontrarUsuario
+                }
+            })
+        }else{
+            return res.status(400).json({
+                ok:false,
+                msg: `No se encontro ningun datos de usuario id: ${_idUsuario}`
+            })
+        }
+    }
+
+})
+
 app.post('/',(req,res) => {
     const body ={
         strNombre: req.body.strNombre,
