@@ -9,6 +9,9 @@ const usuarioModel = require('../../models/usuario/usuario.model');
 
 const UsuarioModel = require('../../models/usuario/usuario.model');
 
+const bcrypt = require('bcrypt');
+const { log } = require('console');
+
 
 app.get('/',async (req,res) => {
     const obtenerUsuario = await UsuarioModel.find();
@@ -33,7 +36,10 @@ app.get('/',async (req,res) => {
 
 
 app.post('/', async (req,res) => {
-    const body = req.body;
+
+    //bcrypt.hashSync(req.body.strContrasena,10)
+   const body = {...req.body,strContrasena: req.body.strContrasena ? bcrypt.hashSync(req.body.strContrasena,10) : undefined};
+    console.log(body);
 
     const obtieneUsuario = await usuarioModel.find({strEmail:body.strEmail});
 
