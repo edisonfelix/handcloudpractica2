@@ -1,10 +1,52 @@
 const express = require('express');
 const { status } = require('express/lib/response');
 const res = require('express/lib/response');
+const productoModel = require('../../models/producto/producto.model');
 const app = express.Router();
-let arrJsnProductos = [];//{_id:1,strNombre:"",strDescripcion:"",nmbCantidad:0,nmbPrecio:0}];
+//let arrJsnProductos = [];//{_id:1,strNombre:"",strDescripcion:"",nmbCantidad:0,nmbPrecio:0}];
 
-app.get('/',(req,res) =>{
+const ProductoModel = require('../../models/producto/producto.model')
+
+app.get('/', async (req,res) => {
+const obtenerProductos = await ProductoModel.find();
+
+    console.log(obtenerProductos);
+
+    return res.status(200).json({
+        ok: true,
+        msg: "Accedi a la ruta productos",
+        cont:{
+            obtenerProductos
+        }
+    })
+})
+
+app.post('/', async (req,res) => {
+    const body = req.body;
+    const ProductoBody = new productoModel(body);
+    const err = ProductoBody.validateSync();
+
+
+
+    if(err){
+        return res.status(400).json({
+            ok: false,
+            msg: 'No se estan ingresando los datos del producto',
+            cont:{err}
+        })
+    }
+
+    const ProductoRegistrado = await ProductoBody.save();
+
+    return res.status(200).json({
+        ok: true,
+        msg: 'Producto registrado con exito',
+        cont:{ProductoRegistrado}
+    })
+})
+
+
+/*app.get('/',(req,res) =>{
     const arrProductos = arrJsnProductos;
     
     if(arrProductos.length == 0){
@@ -164,6 +206,6 @@ app.delete('/',(req,res) => {
 
     }
 
-})
+})*/
 
 module.exports = app;

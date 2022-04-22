@@ -3,8 +3,60 @@ const { isAbsolute } = require('path');
 const app = express.Router();
 let arrJsnUsuarios = []
 const path = require('path');
-const rutaDescarga = path.resolve(__dirname,'../../assets/index.html')
+const productoModel = require('../../models/producto/producto.model');
+const usuarioModel = require('../../models/usuario/usuario.model');
+//const rutaDescarga = path.resolve(__dirname,'../../assets/index.html')
 
+const UsuarioModel = require('../../models/usuario/usuario.model');
+
+
+app.get('/',async (req,res) => {
+    const obtenerUsuario = await UsuarioModel.find();
+
+    if(!obtenerUsuario){
+
+        return res.status(200).json({
+            ok: true,
+            msg: 'Accedi a la ruta de usuarios',
+            cont:{obtenerUsuario}
+        })
+
+    }
+
+    return res.status(400).json({
+        ok: true,
+        msg: 'No se encontraron los usuarios',
+        cont:{obtenerUsuario}
+    })
+})
+
+
+app.post('/', async (req,res) => {
+    const body = req.body;
+    const UsuarioBody = new usuarioModel(body);
+    const err = UsuarioBody.validateSync();
+
+
+
+    if(err){
+        return res.status(400).json({
+            ok: false,
+            msg: 'No se estan ingresando los datos del usuario',
+            cont:{err}
+        })
+    }
+
+    const UsuarioRegistrado = await UsuarioBody.save();
+
+    return res.status(200).json({
+        ok: true,
+        msg: 'Usuario registrado con exito',
+        cont:{UsuarioRegistrado}
+    })
+})
+
+
+/*
 app.get('/',(req,res) => {
     const arrUsuarios = arrJsnUsuarios;
     if(arrJsnUsuarios.length > 0){
@@ -102,16 +154,7 @@ app.post('/',(req,res) => {
 
     
 
-   /* res.status(200).json({
-        ok:true,
-        msg: 'Se registro el usuario correctamente',
-        cont: {arrJsnUsuarios}
-    })*/
-
-    /*const strNombre = {strNombre:req.body.strNombre};
-    const strApellido = req.body.strApellido;
-    const strEmail = req.body.strEmail;
-    const _id = req.body._id;*/
+   
 
     
     
@@ -204,5 +247,7 @@ app.delete('/',(req,res) => {
     }
 
 })
+
+*/
 
 module.exports = app;
