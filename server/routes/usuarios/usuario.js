@@ -41,7 +41,7 @@ app.post('/', async (req,res) => {
     if(err){
         return res.status(400).json({
             ok: false,
-            msg: 'No se estan ingresando los datos del usuario',
+            msg: 'No se estan ingresando los datos del usuario nuevo',
             cont:{err}
         })
     }
