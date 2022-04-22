@@ -15,17 +15,18 @@ app.get('/',async (req,res) => {
 
     if(!obtenerUsuario){
 
-        return res.status(200).json({
-            ok: true,
-            msg: 'Accedi a la ruta de usuarios',
+        return res.status(400).json({
+            ok: false,
+            msg: 'No se encontro usuario',
             cont:{obtenerUsuario}
         })
 
     }
 
-    return res.status(400).json({
+    return res.status(200).json({
         ok: true,
-        msg: 'No se encontraron los usuarios',
+        msg: 'Se encontro los usuarios',
+        count: obtenerUsuario.length,
         cont:{obtenerUsuario}
     })
 })
@@ -33,6 +34,18 @@ app.get('/',async (req,res) => {
 
 app.post('/', async (req,res) => {
     const body = req.body;
+
+    const obtieneUsuario = await usuarioModel.find({strEmail:body.strEmail});
+
+    if(obtieneUsuario.length >0){
+        return res.status(400).json({
+            ok: false,
+            msg: 'El email ya se encuentra registrado',
+            cont:{body}
+        })
+    }
+
+
     const UsuarioBody = new usuarioModel(body);
     const err = UsuarioBody.validateSync();
 
