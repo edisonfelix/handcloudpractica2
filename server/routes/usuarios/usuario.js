@@ -14,7 +14,7 @@ const { log } = require('console');
 
 
 app.get('/',async (req,res) => {
-    const obtenerUsuario = await UsuarioModel.find({},{strContrasena:0});
+    const obtenerUsuario = await UsuarioModel.find();
 
     if(obtenerUsuario.length == 0){
 
