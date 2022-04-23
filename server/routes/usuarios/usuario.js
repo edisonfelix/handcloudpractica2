@@ -14,9 +14,9 @@ const { log } = require('console');
 
 
 app.get('/',async (req,res) => {
-    const obtenerUsuario = await UsuarioModel.find();
+    const obtenerUsuario = await UsuarioModel.find({},{strContrasena:0});
 
-    if(!obtenerUsuario){
+    if(obtenerUsuario.length == 0){
 
         return res.status(400).json({
             ok: false,
