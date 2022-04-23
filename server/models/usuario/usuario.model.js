@@ -19,12 +19,17 @@ let SchemaUsuario = mongoose.Schema({
         requered:[true,'No se recibio el strDirección favor ingrese']
     },
 
+    strNombreUsuario:{
+        type: String,
+        requered:[true,'No se recibio el strNombreUsuario favor ingrese']
+    },
+
     strContrasena:{
         type: String,
         requered:[true,'No se recibio el strContrasena favor ingrese']
     }
 
-
+    
 })
 
 module.exports = mongoose.model('usuario',SchemaUsuario);
