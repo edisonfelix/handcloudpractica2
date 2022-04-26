@@ -114,6 +114,69 @@ app.put('/',async (req,res) =>{
 
 })
 
+app.delete('/',async (req,res) => {
+
+try {
+
+    const _idProducto = req.query._idProducto
+
+    if(!_idProducto || _idProducto.length != 24){
+        return res.status(400).json({
+            ok:false,
+            msg: _idProducto ? 'El identificador no es valido' : 'No se recibio el identificador del producto',
+            cont:{
+                _idProducto
+            }
+        })
+    }
+
+    const encontrarProducto = await ProductoModel.findOne({_id:_idProducto})
+
+    if(!encontrarProducto){
+        return res.status(400).json({
+            ok:false,
+            msg: 'El identificador no se encuentra en la BD',
+            cont:{
+                _idProducto:_idProducto
+            }
+        })
+    }
+
+    //const eliminarProducto = await ProductoModel.findByIdAndDelete({_id:_idProducto})
+    const desactivarProducto = await ProductoModel.findByIdAndUpdate({_id:_idProducto},{set:{blnEstado:false}},{new: true})
+
+    if(!eliminarProducto){
+        return res.status(400).json({
+            ok:false,
+            msg: 'El producto no se logro desactivar de la BD',
+            cont:{
+                _idProducto:_idProducto
+            }
+        })
+    }
+
+    return res.status(200).json({
+        ok:false,
+        msg: 'El producto se desactivo exitosamente de la BD',
+        cont:{
+
+            eliminarProducto
+        }
+    })
+    
+} catch (error) {
+    return res.status(500).json({
+        ok:false,
+        msg: 'Error del servidor',
+        cont:{
+            error
+        }
+    })
+}
+
+
+})
+
 
 /*app.get('/',(req,res) =>{
     const arrProductos = arrJsnProductos;

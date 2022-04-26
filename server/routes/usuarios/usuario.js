@@ -171,6 +171,38 @@ app.put('/',async (req,res) => {
     }
 })
 
+app.delete('/',async (req,res) => {
+
+    const _idUsuario = req.query._idUsuario
+    const blnEstado = req.query.blnEstado == "false" ? false : true
+
+    if(!_idUsuario || _idUsuario.length != 24){
+        return res.status(400).json({
+            ok:false,
+            msg: _idUsuario ? 'No es un id valido' : 'No se ingreso un idUsuario',
+            cont:{
+                _idUsuario: _idUsuario
+            }
+        })
+    }
+
+    return res.status(200).json({
+        ok:true,
+        msg: 'Se recibieron los valores de manera exitosa',
+        cont:{
+            _idUsuario: _idUsuario,
+            blnEstado: blnEstado
+        }
+    })
+
+    
+
+
+    
+
+
+})
+
 
 /*
 app.get('/',(req,res) => {
