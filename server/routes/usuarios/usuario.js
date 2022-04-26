@@ -11,11 +11,12 @@ const UsuarioModel = require('../../models/usuario/usuario.model');
 
 const bcrypt = require('bcrypt');
 const { log } = require('console');
+const { modelName } = require('../../models/producto/producto.model');
 
 
 app.get('/',async (req,res) => {
     const obtenerUsuario = await UsuarioModel.find({},{strContrasena:0});
-
+   
     if(obtenerUsuario.length == 0){
 
         return res.status(400).json({
@@ -83,6 +84,91 @@ app.post('/', async (req,res) => {
         msg: 'Usuario registrado con exito',
         cont:{UsuarioRegistrado}
     })
+})
+
+app.put('/',async (req,res) => {
+
+    try {
+
+        const _idUsuario = req.query._idUsuario;
+        
+        if(!_idUsuario || _idUsuario.length != 24)
+        {
+            return res.status(400).json({
+                ok:false,
+                msg: _idUsuario ? 'No es un id valido' : 'No se recibio el identificador del usuario',
+                cont:{
+                    _idUsuario
+                }
+            })
+        }
+
+        const encontrarUsuario = await UsuarioModel.findOne({_id:_idUsuario})
+
+        if(!encontrarUsuario){
+            return res.status(400).json({
+                ok:false,
+                msg: 'No se encontro el usuario seleccionado',
+                cont:{
+                    _idUsuario
+                }
+            })
+        }
+
+        const buscaUsuario = await usuarioModel.findOne({strNombreUsuario: req.body.strNombreUsuario, _id:{$ne: _idUsuario}},{strNombreUsuario:1,strNombre:1})
+
+        if (buscaUsuario){
+            return res.status(400).json({
+                ok:false,
+                msg: 'El nombre de usuario ya se encuentra registrado en la BD',
+                cont:{
+                    buscaUsuario
+                }
+            })
+        }
+
+        const actualizarUsuario = await  UsuarioModel.findByIdAndUpdate(_idUsuario,
+            {$set:{
+                strNombre:req.body.strNombre,
+                strApellido:req.body.strApellido,
+                strDireccion:req.body.strDireccion,
+                strNombreUsuario:req.body.strNombreUsuario}},{new: true})
+
+       
+
+        if(!actualizarUsuario){
+            return res.status(400).json({
+                ok:false,
+                msg: 'No se logro actualizar el usuario',
+                cont:{
+                    _idUsuario
+                }
+            })
+        }
+
+        console.log(actualizarUsuario)
+        console.log(encontrarUsuario)
+       
+        return res.status(200).json({
+            ok:true,
+            msg: 'El usuario se actualizo con éxito',
+            cont:{
+                 UsuarioAnt: encontrarUsuario,
+                 UsuarioNuevo: actualizarUsuario
+            }
+        })
+        
+        
+    } catch (error) {
+        //console.log(error)
+       return res.status(500).json({
+           ok:false,
+           msg: 'Error del servidor',
+           cont:{
+               error
+           }
+       })
+    }
 })
 
 

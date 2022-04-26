@@ -45,6 +45,75 @@ app.post('/', async (req,res) => {
     })
 })
 
+app.put('/',async (req,res) =>{
+
+    try {
+
+        const _idProducto = req.query._idProducto;
+        console.log(_idProducto)
+        if(!_idProducto || _idProducto.length != 24 ){
+            return res.status(400).json({
+                ok:false,
+                msg: _idProducto ? 'El identificador no es valido' : 'No se recibio el identificador del producto',
+                cont:{
+                    _idProducto
+                }
+            })
+        }
+
+        const encontrarProducto = await ProductoModel.findOne({_id:_idProducto});
+    
+        if(!encontrarProducto){
+            return res.status(200).json({
+                ok:false,
+                msg: 'El producto no se encuentra registrado',
+                cont:{
+                    _idProducto
+                }
+            })
+        }
+
+        //const actualizarProducto = await ProductoModel.updateOne({_id:_idProducto},{$set:{...req.body}})
+        const actualizarProducto = await ProductoModel.findByIdAndUpdate(_idProducto,{$set:{...req.body}},{new: true})
+        
+        console.log(actualizarProducto);
+        if (!actualizarProducto)
+        {
+            return res.status(400).json({
+            ok:false,
+            msg: 'Producto no se logro actualizar',
+            cont:{
+                    ...req.body
+                }
+            })
+        }
+
+        return res.status(200).json({
+            ok:true,
+            msg: 'Producto se actualizó',
+            cont:{
+                productoAnterior: encontrarProducto,
+                ProductoNuevo: actualizarProducto
+                }
+        })
+
+    } catch (error) {
+
+        return res.status(500).json({
+            ok:false,
+            msg: 'Error de servidor',
+            cont:{
+                error
+            }
+        })
+        
+    }
+
+   
+    
+
+})
+
 
 /*app.get('/',(req,res) =>{
     const arrProductos = arrJsnProductos;
