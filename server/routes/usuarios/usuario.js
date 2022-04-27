@@ -186,12 +186,28 @@ app.delete('/',async (req,res) => {
         })
     }
 
+    
+
+    const _idUsuario = req.query._idUsuario
+    const blnEstado = req.query.blnEstado == "false" ? false : true
+
+    if(!_idUsuario || _idUsuario.length != 24){
+        return res.status(400).json({
+            ok:false,
+            msg: _idUsuario ? 'No es un id valido' : 'No se ingreso un idUsuario',
+            cont:{
+                _idUsuario: _idUsuario
+            }
+        })
+    }
+
+    const modificarEstadoUsuario = await usuarioModel.findOneAndUpdate({_id:_idUsuario},{set:{blnEstado:blnEstado}},{new: true})
+
     return res.status(200).json({
         ok:true,
-        msg: 'Se recibieron los valores de manera exitosa',
+        msg: blnEstado == true ? 'Se activo el usuario de manera existosa' : 'Se desactivo el usuario de manera existosa',
         cont:{
-            _idUsuario: _idUsuario,
-            blnEstado: blnEstado
+            modificarEstadoUsuario
         }
     })
 

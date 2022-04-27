@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 let SchemaUsuario = mongoose.Schema({
     strNombre:{
         type: String,
-        requered: [true,'No se recibio el strNombre favor de ingresarlo']    
+        default: true    
     },
     strApellido:{
         type:String,
