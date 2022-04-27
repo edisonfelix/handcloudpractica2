@@ -8,13 +8,25 @@ const app = express.Router();
 const ProductoModel = require('../../models/producto/producto.model')
 
 app.get('/', async (req,res) => {
-const obtenerProductos = await ProductoModel.find();
+
+const blnEstado = req.query.blnEstado == "false" ? false : true
+const obtenerProductos = await ProductoModel.find({blnEstado:blnEstado});
+
+//funcion con aggregate
+const obtenerProductosAggrgate = await productoModel.aggregate([
+       {$match:{$expr:{$eq:"blnEstado",blnEstado}}}
+
+]);
+
+
+//funcion con aggregate
 
     console.log(obtenerProductos);
 
     return res.status(200).json({
         ok: true,
         msg: "Accedi a la ruta productos",
+        count: obtenerProductos.length,
         cont:{
             obtenerProductos
         }
@@ -61,7 +73,7 @@ app.put('/',async (req,res) =>{
             })
         }
 
-        const encontrarProducto = await ProductoModel.findOne({_id:_idProducto});
+        const encontrarProducto = await ProductoModel.findOne({_id:_idProducto,blnEstado:true});
     
         if(!encontrarProducto){
             return res.status(200).json({
@@ -69,6 +81,18 @@ app.put('/',async (req,res) =>{
                 msg: 'El producto no se encuentra registrado',
                 cont:{
                     _idProducto
+                }
+            })
+        }
+
+        const buscaProducto = await productoModel.findOne({strNombre: req.body.strNombre, blnEstado : true, _id:{$ne: _idProducto}},{strNombre:1})
+
+        if (buscaProducto){
+            return res.status(400).json({
+                ok:false,
+                msg: 'El nombre del producto ya se encuentra registrado en la BD',
+                cont:{
+                    buscaProducto
                 }
             })
         }
@@ -119,6 +143,9 @@ app.delete('/',async (req,res) => {
 try {
 
     const _idProducto = req.query._idProducto
+    const blnEstado = req.query.blnEstado == "false" ? false : true
+
+    console.log(blnEstado)
 
     if(!_idProducto || _idProducto.length != 24){
         return res.status(400).json({
@@ -143,9 +170,9 @@ try {
     }
 
     //const eliminarProducto = await ProductoModel.findByIdAndDelete({_id:_idProducto})
-    const desactivarProducto = await ProductoModel.findByIdAndUpdate({_id:_idProducto},{set:{blnEstado:false}},{new: true})
+    const desactivarProducto = await ProductoModel.findOneAndUpdate({_id:_idProducto},{$set:{blnEstado:blnEstado}},{new: true})
 
-    if(!eliminarProducto){
+    if(!desactivarProducto){
         return res.status(400).json({
             ok:false,
             msg: 'El producto no se logro desactivar de la BD',
@@ -155,12 +182,14 @@ try {
         })
     }
 
+    
+
     return res.status(200).json({
-        ok:false,
-        msg: 'El producto se desactivo exitosamente de la BD',
+        ok:true,
+        msg: blnEstado == true ? 'Se activo el usuario de manera existosa' : 'Se desactivo el usuario',
         cont:{
 
-            eliminarProducto
+            desactivarProducto
         }
     })
     

@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 let SchemaProducto = mongoose.Schema({
     blnEstado:{
         type: Boolean,
-        requered: [true,'No se recibio el blnEstado favor de ingresarlo']
+        default:true
     },
     strNombre:{
         type: String,
