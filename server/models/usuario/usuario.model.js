@@ -27,6 +27,11 @@ let SchemaUsuario = mongoose.Schema({
     strContrasena:{
         type: String,
         requered:[true,'No se recibio el strContrasena favor ingrese']
+    },
+
+    _idEmpresa:{
+        type: mongoose.Types.ObjectId,
+        requered:[true,'No se recibio el idEmpresa favor ingrese']
     }
 
     
