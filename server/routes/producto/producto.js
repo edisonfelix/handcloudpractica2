@@ -3,37 +3,38 @@ const { status } = require('express/lib/response');
 const res = require('express/lib/response');
 const productoModel = require('../../models/producto/producto.model');
 const app = express.Router();
+const {verificarAcceso} = require('../../middlewares/permisos')
+
 //let arrJsnProductos = [];//{_id:1,strNombre:"",strDescripcion:"",nmbCantidad:0,nmbPrecio:0}];
 
 const ProductoModel = require('../../models/producto/producto.model')
 
-app.get('/', async (req,res) => {
+app.get('/',verificarAcceso, async (req,res) => {
 
 const blnEstado = req.query.blnEstado == "false" ? false : true
-const obtenerProductos = await ProductoModel.find({blnEstado:blnEstado});
+//const obtenerProductos = await ProductoModel.find({blnEstado:blnEstado});
 
 //funcion con aggregate
 const obtenerProductosAggrgate = await productoModel.aggregate([
-       {$match:{$expr:{$eq:"blnEstado",blnEstado}}}
+       {$match:{"blnEstado":blnEstado}}
 
 ]);
 
 
 //funcion con aggregate
 
-    console.log(obtenerProductos);
-
+   
     return res.status(200).json({
         ok: true,
         msg: "Accedi a la ruta productos",
-        count: obtenerProductos.length,
+        count: obtenerProductosAggrgate.length,
         cont:{
-            obtenerProductos
+            obtenerProductosAggrgate
         }
     })
 })
 
-app.post('/', async (req,res) => {
+app.post('/',verificarAcceso, async (req,res) => {
     const body = req.body;
     const ProductoBody = new productoModel(body);
     const err = ProductoBody.validateSync();
@@ -50,14 +51,14 @@ app.post('/', async (req,res) => {
 
     const ProductoRegistrado = await ProductoBody.save();
 
-    return res.status(200).json({
+      return res.status(200).json({
         ok: true,
         msg: 'Producto registrado con exito',
         cont:{ProductoRegistrado}
     })
 })
 
-app.put('/',async (req,res) =>{
+app.put('/',verificarAcceso, async (req,res) =>{
 
     try {
 
@@ -138,7 +139,7 @@ app.put('/',async (req,res) =>{
 
 })
 
-app.delete('/',async (req,res) => {
+app.delete('/',verificarAcceso,async (req,res) => {
 
 try {
 

@@ -3,22 +3,41 @@ const { isAbsolute } = require('path');
 const app = express.Router();
 let arrJsnUsuarios = []
 const path = require('path');
-const productoModel = require('../../models/producto/producto.model');
+const empresaModel = require('../../models/empresa/empresa.model')
 //const rutaDescarga = path.resolve(__dirname,'../../assets/index.html')
+
+const {verificarAcceso} = require('../../middlewares/permisos')
 
 const usuarioModel = require('../../models/usuario/usuario.model');
 
 const bcrypt = require('bcrypt');
 const { log } = require('console');
-const { modelName } = require('../../models/producto/producto.model');
+const { modelName, db } = require('../../models/producto/producto.model');
 
 
-app.get('/',async (req,res) => {
+
+app.get('/',verificarAcceso,async (req,res) => {
 
     const blnEstado = req.query.blnEstado == "false" ? false : true
-    const obtenerUsuario = await usuarioModel.find({blnEstado:blnEstado},{strContrasena:0});
+
+
+    
+    //const obtenerUsuario = await usuarioModel.find({blnEstado:blnEstado},{strContrasena:0});
+
+    const obtenerUsuariosAggregate = await usuarioModel.aggregate([
+        {
+            $lookup:{
+            from: "empresas",   //Nombre de la colección de mogodb
+            localField: '_idEmpresa',
+            foreignField: '_id',
+            as: 'Empresa'
+            }
+
+
+        }
+    ])
    
-    if(obtenerUsuario.length == 0){
+    if(obtenerUsuariosAggregate.length == 0){
 
         return res.status(400).json({
             ok: false,
@@ -28,16 +47,18 @@ app.get('/',async (req,res) => {
 
     }
 
+   
+
     return res.status(200).json({
         ok: true,
         msg: 'Se encontro los usuarios',
-        count: obtenerUsuario.length,
-        cont:{obtenerUsuario}
+        count: obtenerUsuariosAggregate.length,
+        cont:{obtenerUsuariosAggregate}
     })
 })
 
 
-app.post('/', async (req,res) => {
+app.post('/',verificarAcceso, async (req,res) => {
 
     //bcrypt.hashSync(req.body.strContrasena,10)
    const body = {...req.body,strContrasena: req.body.strContrasena ? bcrypt.hashSync(req.body.strContrasena,10) : undefined};
@@ -87,7 +108,7 @@ app.post('/', async (req,res) => {
     })
 })
 
-app.put('/',async (req,res) => {
+app.put('/',verificarAcceso,async (req,res) => {
 
     try {
 
@@ -173,7 +194,7 @@ app.put('/',async (req,res) => {
     }
 })
 
-app.delete('/',async (req,res) => {
+app.delete('/',verificarAcceso,async (req,res) => {
 
     const _idUsuario = req.query._idUsuario
     const blnEstado = req.query.blnEstado == "false" ? false : true

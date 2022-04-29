@@ -9,3 +9,7 @@ if(process.env.NODE_ENV=== 'dev'){
 }
 
 process.env.URLDB = urlDB;
+
+process.env.SEED = process.env.SEED || 'Firma-secreta';
+
+process.env.CADUCIDAD_TOKEN = process.env.CADUCIDAD_TOKEN || '2m';
