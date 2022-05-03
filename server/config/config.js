@@ -12,4 +12,4 @@ process.env.URLDB = urlDB;
 
 process.env.SEED = process.env.SEED || 'Firma-secreta';
 
-process.env.CADUCIDAD_TOKEN = process.env.CADUCIDAD_TOKEN || '2m';
+process.env.CADUCIDAD_TOKEN = process.env.CADUCIDAD_TOKEN || '8h';

@@ -30,12 +30,9 @@ let schemaApi = new mongoose.Schema({
     blnEsMenu:{
         type:Boolean,
         default:true
-    },
-
-    blnRolDefault:{
-        type:Boolean,
-        default:true
     }
+
+    
 
 })
 

@@ -2,6 +2,11 @@ const mongoose = require('mongoose')
 
 let schemaRol = new mongoose.Schema({
 
+    blnEstado:{
+        type: Boolean,
+        default: true
+    },
+
     strNombre:{
         type: String,
         requered:[true,'No se recibio el strNombre favor ingrese']
@@ -18,7 +23,7 @@ let schemaRol = new mongoose.Schema({
         default:false
     },
 
-    arrObjIdApis:[]
+    arrObjIdApis:[mongoose.Types.ObjectId]
     
 
 })

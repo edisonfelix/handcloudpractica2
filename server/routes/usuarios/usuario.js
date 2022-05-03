@@ -4,6 +4,7 @@ const app = express.Router();
 let arrJsnUsuarios = []
 const path = require('path');
 const empresaModel = require('../../models/empresa/empresa.model')
+const RolModel = require('../../models/permisos/rol.model')
 //const rutaDescarga = path.resolve(__dirname,'../../assets/index.html')
 
 const {verificarAcceso} = require('../../middlewares/permisos')
@@ -13,6 +14,7 @@ const usuarioModel = require('../../models/usuario/usuario.model');
 const bcrypt = require('bcrypt');
 const { log } = require('console');
 const { modelName, db } = require('../../models/producto/producto.model');
+const cargarArchivo = require('../../library/cargarArchivos')
 
 
 
@@ -57,16 +59,17 @@ app.get('/',verificarAcceso,async (req,res) => {
     })
 })
 
+//app.post('/',verificarAcceso, async (req,res) => {
+app.post('/', async (req,res) => {
 
-app.post('/',verificarAcceso, async (req,res) => {
-
-    //bcrypt.hashSync(req.body.strContrasena,10)
+    try {
+        
+     //bcrypt.hashSync(req.body.strContrasena,10)
    const body = {...req.body,strContrasena: req.body.strContrasena ? bcrypt.hashSync(req.body.strContrasena,10) : undefined};
     console.log(body);
 
     const encontroEmail = await usuarioModel.find({strEmail:body.strEmail});
     const encontroNombreUsuario = await usuarioModel.find({strNombreUsuario:body.strNombreUsuario});
-
 
     if(encontroEmail.length > 0){
         return res.status(400).json({
@@ -99,6 +102,26 @@ app.post('/',verificarAcceso, async (req,res) => {
         })
     }
 
+    if(req.files){
+        
+        if(!req.files.strImagen){
+            return res.status(400).json({
+                ok: false,
+                msg: 'No se recibio archivo strImagen, favor ingrese',
+                cont:{}
+            })
+        }
+
+        console.log(req.files,'tiene archivos');
+        UsuarioBody.strImagen = await cargarArchivo.subirArchivo(req.files.strImagen,'usuario',['image/png', 'image/jpeg']);
+        
+    }
+
+    if(!req.body._idObjRol){
+        const encontroRolDefault = await RolModel.findOne({blnRolDefault:true})
+        UsuarioBody._idObjRol = encontroRolDefault._id;
+    }
+
     const UsuarioRegistrado = await UsuarioBody.save();
 
     return res.status(200).json({
@@ -106,6 +129,16 @@ app.post('/',verificarAcceso, async (req,res) => {
         msg: 'Usuario registrado con exito',
         cont:{UsuarioRegistrado}
     })
+
+    } catch (error) {
+        const err = Error(error);
+
+        return res.status(500).json({
+            ok: false,
+            msg: 'Error en el servidor',
+            cont:{err: err.message ? err.message : err.name ? err.name : err}
+        }) 
+    }
 })
 
 app.put('/',verificarAcceso,async (req,res) => {
