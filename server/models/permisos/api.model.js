@@ -9,17 +9,17 @@ let schemaApi = new mongoose.Schema({
 
     strRuta:{
         type: String,
-        requered:[true,'No se recibio el strRuta favor ingrese']
+        required:[true,'No se recibio el strRuta favor ingrese']
     },
 
     strMetodo:{
         type:String,
-        requered:[true,'No se recibio el strMetodo favor ingrese']
+        required:[true,'No se recibio el strMetodo favor ingrese']
     },
 
     strDescripcion:{
         type:String,
-        requered:[true,'No se recibio el strMetodo favor ingrese']
+        required:[true,'No se recibio el strMetodo favor ingrese']
     },
 
     blnEsApi:{

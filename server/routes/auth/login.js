@@ -55,7 +55,7 @@ app.post('/login',async (req,res) => {
         })
     }
 
-    const token = jwt.sign({encontrarEmail},process.env.SEED,{expiresIn: process.env.CADUCIDAD_TOKEN})
+    const token = jwt.sign({usuario:encontrarEmail},process.env.SEED,{expiresIn: process.env.CADUCIDAD_TOKEN})
 
     return res.status(200).json({
         ok:true,

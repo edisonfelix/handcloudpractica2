@@ -1,10 +1,13 @@
 const express = require('express');
 const { isAbsolute } = require('path');
 const app = express.Router();
+
 let arrJsnUsuarios = []
 const path = require('path');
 const empresaModel = require('../../models/empresa/empresa.model')
+const permisosModel = require('../../models/permisos/api.model')
 const RolModel = require('../../models/permisos/rol.model')
+
 //const rutaDescarga = path.resolve(__dirname,'../../assets/index.html')
 
 const {verificarAcceso} = require('../../middlewares/permisos')
@@ -16,9 +19,12 @@ const { log } = require('console');
 const { modelName, db } = require('../../models/producto/producto.model');
 const cargarArchivo = require('../../library/cargarArchivos')
 
-
-
+//app.get('/',verificarAcceso,async (req,res) => {
 app.get('/',verificarAcceso,async (req,res) => {
+
+    try {
+        
+    
 
     const blnEstado = req.query.blnEstado == "false" ? false : true
 
@@ -28,15 +34,54 @@ app.get('/',verificarAcceso,async (req,res) => {
 
     const obtenerUsuariosAggregate = await usuarioModel.aggregate([
         {
+            $match:{blnEstado:blnEstado}
+        },
+       
+        {
             $lookup:{
-            from: "empresas",   //Nombre de la colección de mogodb
+            from: empresaModel.collection.name,   //Nombre de la colección de mogodb
             localField: '_idEmpresa',
             foreignField: '_id',
             as: 'Empresa'
+            },
+        },    
+            {
+                $lookup:{
+                    from: RolModel.collection.name,
+                    let: {idObjRol:'$_idObjRol'},
+                    pipeline:[
+                        {$match:{$expr:{$eq:['$_id','$$idObjRol']}}},
+                        {
+                            $lookup:{
+                                from: permisosModel.collection.name,
+                                let: {idObjApi:'$arrObjIdApis'},
+                                pipeline:[
+                                    {$match:{$expr:{$in:['$_id','$$idObjApi']}}},
+                                ],
+                                as:'apis'
+                            }
+                        },
+                        {$project:{strNombre:1,strDescripcion:1,blnRolDefault:1,blnEstado:1,apis:1}}
+                    ],
+                    as: 'roles'
+                }
+            },
+            {
+                $project:{
+                    strNombre:1,
+                    strApellido:1,
+                    strEmail:1,
+                    strDireccion:'$strDireccion',
+                    Empresa:{
+                        $arrayElemAt:['$Empresa',0]
+                    },
+                    roles:{
+                        $arrayElemAt:['$roles',0]
+                    },
+                }
             }
-
-
-        }
+            
+      
     ])
    
     if(obtenerUsuariosAggregate.length == 0){
@@ -44,7 +89,7 @@ app.get('/',verificarAcceso,async (req,res) => {
         return res.status(400).json({
             ok: false,
             msg: 'No se encontro usuario',
-            cont:{obtenerUsuario}
+            cont:{obtenerUsuariosAggregate}
         })
 
     }
@@ -57,6 +102,16 @@ app.get('/',verificarAcceso,async (req,res) => {
         count: obtenerUsuariosAggregate.length,
         cont:{obtenerUsuariosAggregate}
     })
+
+} catch (error) {
+    const err = Error(error);
+
+    return res.status(500).json({
+        ok: false,
+        msg: 'Error en el servidor',
+        cont:{err: err.message ? err.message : err.name ? err.name : err}
+    }) 
+}
 })
 
 //app.post('/',verificarAcceso, async (req,res) => {

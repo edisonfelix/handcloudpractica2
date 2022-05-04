@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
 let SchemaUsuario = mongoose.Schema({
+    blnEstado:{
+            type: Boolean,
+            requered: [true,'No se recibio el blnEstado favor ingresrlo']
+        },
+
     strNombre:{
         type: String,
         default: true    
