@@ -8,8 +8,6 @@ const empresaModel = require('../../models/empresa/empresa.model')
 const permisosModel = require('../../models/permisos/api.model')
 const RolModel = require('../../models/permisos/rol.model')
 
-//const rutaDescarga = path.resolve(__dirname,'../../assets/index.html')
-
 const {verificarAcceso} = require('../../middlewares/permisos')
 
 const usuarioModel = require('../../models/usuario/usuario.model');
@@ -19,7 +17,7 @@ const { log } = require('console');
 const { modelName, db } = require('../../models/producto/producto.model');
 const cargarArchivo = require('../../library/cargarArchivos')
 
-//app.get('/',verificarAcceso,async (req,res) => {
+
 app.get('/',verificarAcceso,async (req,res) => {
 
     try {
@@ -114,8 +112,7 @@ app.get('/',verificarAcceso,async (req,res) => {
 }
 })
 
-//app.post('/',verificarAcceso, async (req,res) => {
-app.post('/', async (req,res) => {
+app.post('/', verificarAcceso,async (req,res) => {
 
     try {
         
